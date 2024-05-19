@@ -1,0 +1,41 @@
+version: '2.24.6'
+services:
+    frontend:
+        image: quangnv1911/quiz-practice-fe:v1
+        build:
+            context: /FE
+            dockerfile: Dockerfile
+        networks:
+            - dev    
+        ports:
+            - "83:83"
+    mysql:
+        image: quangnv1911/mysql:v1
+        build:
+            context: /SQL
+            dockerfile: Dockerfile
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: 123456
+        ports:
+            - "8082:3306"
+        networks:
+            - dev  
+    back-end:
+        image: quangnv1911/quiz-practice-be:v1
+        depends_on:
+            - mysql
+        build: 
+            context: /BE
+            dockerfile: Dockerfile
+        ports:
+            - "8080:8080"
+        environment:
+            - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/quiz_practice?createDatabaseIfNotExist=true
+            - SPRING_DATASOURCE_USERNAME=root
+            - SPRING_DATASOURCE_PASSWORD=123456
+        networks:
+            - dev
+    
+networks:
+    dev: 
