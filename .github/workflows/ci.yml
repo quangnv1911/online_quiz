@@ -1,0 +1,118 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+env:
+  NODE_ENV: production
+
+jobs:
+  build-fe:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment for FE
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+        if: contains('node:16', 'node')
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+        if: contains('node:16', 'maven')
+
+      - name: FE - Step 1
+        run: cd frontend && npm install && npm build
+
+      
+      - name: Archive artifacts for FE
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-fe-artifacts
+          path: |
+            **/dist/
+            **/build/
+            **/target/
+        if: success()
+
+  build-be:
+    runs-on: ubuntu-latest
+    container:
+      image: maven:3-jdk-11
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment for BE
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+        if: contains('maven:3-jdk-11', 'node')
+      
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+        if: contains('maven:3-jdk-11', 'maven')
+
+      - name: BE - Step 1
+        run: cd backend && mvn clean install
+
+      
+      - name: Archive artifacts for BE
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-be-artifacts
+          path: |
+            **/dist/
+            **/build/
+            **/target/
+        if: success()
+
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+        if: contains('node:16', 'node')
+
+      - name: Test - Step 1
+        run: cd frontend && npm test
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: node:16
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+        if: contains('node:16', 'node')
+
+      - name: Deploy - Step 1
+        run: aws s3 sync ./frontend/build s3://my-bucket
+
+
