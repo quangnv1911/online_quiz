@@ -1,0 +1,62 @@
+image: node:16
+
+variables:
+  NODE_ENV: production
+
+stages:
+  - build
+  - test
+  - deploy
+
+build-fe:
+  stage: build
+  image: node:16
+  script:
+    - cd frontend && npm install && npm build
+  artifacts:
+    paths:
+      - "**/dist/"
+      - "**/build/"
+      - "**/target/"
+    expire_in: 1 week
+  only:
+    refs:
+      - dev
+      - merge_requests
+
+build-be:
+  stage: build
+  image: maven:3-jdk-11
+  script:
+    - cd backend && mvn clean install
+  artifacts:
+    paths:
+      - "**/dist/"
+      - "**/build/"
+      - "**/target/"
+    expire_in: 1 week
+  only:
+    refs:
+      - dev
+      - merge_requests
+
+test:
+  stage: test
+  image: node:16
+  script:
+    - cd frontend && npm test
+  only:
+    refs:
+      - dev
+      - merge_requests
+
+deploy:
+  stage: deploy
+  image: node:16
+  script:
+    - aws s3 sync ./frontend/build s3://my-bucket
+  only:
+    refs:
+      - dev
+      - merge_requests
+
