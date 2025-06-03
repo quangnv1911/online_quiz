@@ -32,7 +32,7 @@ jobs:
         if: contains('node:16', 'maven')
 
       - name: FE - Step 1
-        run: cd frontend && npm install && npm build
+        run: cd FE && npm install && npm build
 
       
       - name: Archive artifacts for FE
@@ -67,7 +67,7 @@ jobs:
         if: contains('maven:3-jdk-11', 'maven')
 
       - name: BE - Step 1
-        run: cd backend && mvn clean install
+        run: cd BE && mvn clean install
 
       
       - name: Archive artifacts for BE
