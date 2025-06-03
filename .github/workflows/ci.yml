@@ -13,7 +13,7 @@ jobs:
   build-fe:
     runs-on: ubuntu-latest
     container:
-      image: node:16
+      image: node:22
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -22,14 +22,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-        if: contains('node:16', 'node')
+        if: contains('node:22', 'node')
       
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '11'
-        if: contains('node:16', 'maven')
+        if: contains('node:22', 'maven')
 
       - name: FE - Step 1
         run: cd FE && npm install && npm run build
