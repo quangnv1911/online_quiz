@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ ci/demo_ci_tool ]
   pull_request:
-    branches: [ dev ]
+    branches: [ ci/demo_ci_tool ]
 
 env:
   NODE_ENV: production
